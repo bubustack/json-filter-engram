@@ -1,0 +1,55 @@
+apiVersion: catalog.bubustack.io/v1alpha1
+kind: EngramTemplate
+metadata:
+  name: json-filter
+  annotations:
+    registry.bubustack.io/maturity: experimental
+spec:
+  version: 0.1.0
+  description: "Filters JSON payloads (inline or offloaded) and returns a small inline result."
+  image: ghcr.io/bubustack/json-filter-engram:0.1.0
+  supportedModes:
+    - job
+  configSchema:
+    type: object
+    additionalProperties: false
+  inputSchema:
+    type: object
+    properties:
+      input:
+        x-kubernetes-preserve-unknown-fields: true
+        description: "Inline JSON or a storage reference object containing $bubuStorageRef."
+      select:
+        type: object
+        description: "Selection rules applied to the hydrated JSON payload."
+        properties:
+          itemsPath:
+            type: string
+            description: "Path to the array of items (e.g., 'channels')."
+          matchField:
+            type: string
+            description: "Field/path within each item to match. Leave empty to select the first item."
+          matchValue:
+            type: string
+            description: "Value to match against matchField."
+          valuePath:
+            type: string
+            description: "Path to the selected value within the matched item."
+          outputKey:
+            type: string
+            description: "Key name to use in resultSelected (default 'value')."
+          includeItem:
+            type: boolean
+            description: "Include the matched item under resultSelected.item."
+          requireMatch:
+            type: boolean
+            description: "Fail the step if no match is found (default true)."
+      parseJSONText:
+        type: boolean
+        description: "Parse JSON text payloads (default true)."
+  outputSchema:
+    type: object
+    properties:
+      resultSelected:
+        x-kubernetes-preserve-unknown-fields: true
+        description: "Small extracted value from the hydrated payload."
